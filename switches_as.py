@@ -1,6 +1,7 @@
 # switches_as.py
 from machine import Pin
 import uasyncio as asyncio
+from time import sleep_ms
 
 
 class HwSwitch(Pin):
@@ -30,7 +31,8 @@ class SwitchSet:
     def __init__(self, switch_pins_: tuple, poll_interval: int = 200):
         self.switches = {pin: HwSwitch(pin) for pin in switch_pins_}
         self.poll_interval = poll_interval
-        self.ev_input = asyncio.Event()
+        self.ev_input = asyncio.Event()  # set when input data received
+        self.ev_main_ready = asyncio.Event()  # set when data consumer is ready
         self._pin_states = None
         self._previous_states = None
     
@@ -47,6 +49,7 @@ class SwitchSet:
             if self._pin_states != self._previous_states:
                 self.ev_input.set()
             await asyncio.sleep_ms(self.poll_interval)
+            await self.ev_main_ready.wait()
             self._previous_states = self._pin_states
 
 
@@ -60,10 +63,14 @@ def main():
     
     switches = SwitchSet(switch_pins)
     asyncio.create_task(switches.poll_switches())
+    print(f'pin: switch state {switches.pin_states}')
     while True:
+        switches.ev_main_ready.set()    # main() is ready for data
+        await switches.ev_input.wait()  # wait for data input
+        switches.ev_input.clear()       # data input acknowledged
+        switches.ev_main_ready.clear()  # flag main() as busy
         print(f'pin: switch state {switches.pin_states}')
-        await switches.ev_input.wait()
-        switches.ev_input.clear()
+        sleep_ms(2_000)                 # simulate servo setting 
 
 
 if __name__ == '__main__':
