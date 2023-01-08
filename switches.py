@@ -2,7 +2,7 @@
 from machine import Pin
 
 
-class HwSwIn(Pin):
+class HwSwitch(Pin):
     """ on/off switch (latching) input
         - extends machine.Pin class """
     # class constants
@@ -17,20 +17,17 @@ class HwSwIn(Pin):
     @property
     def state(self):
         """ return physical switch state  """
-        self._state = 1 if self.value() == HwSwIn._ON else 0
+        self._state = 1 if self.value() == HwSwitch._ON else 0
         return self._state
 
 
 def pin_switch(pins):
     """ return dictionary of pin: switch-objects """
-    pin_sw = {pin: HwSwIn(pin) for pin in pins}
-    return pin_sw
-
+    return {pin: HwSwitch(pin) for pin in pins}
 
 def pin_state(switches):
     """ return dictionary of pin: switch-states """
-    pin_state_ = {pin: switches[pin].state for pin in switches}
-    return pin_state_
+    return {pin: switches[pin].state for pin in switches}
     
 
 def main():
@@ -41,7 +38,7 @@ def main():
     switch_pins = (16, 17, 18)
     switches = pin_switch(switch_pins)
     poll_interval = 1000  # ms
-    while True:
+    for _ in range(10):
         states = pin_state(switches)
         print(states)
         sleep_ms(poll_interval)

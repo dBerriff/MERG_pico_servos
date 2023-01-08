@@ -64,7 +64,7 @@ def main():
     switches = SwitchSet(switch_pins)
     asyncio.create_task(switches.poll_switches())
     print(f'pin: switch state {switches.pin_states}')
-    while True:
+    for _ in range(10):
         switches.ev_main_ready.set()    # main() is ready for data
         await switches.ev_input.wait()  # wait for data input
         switches.ev_input.clear()       # data input acknowledged
@@ -79,4 +79,3 @@ if __name__ == '__main__':
     finally:
         asyncio.new_event_loop()  # clear retained state
         print('test complete')
-        

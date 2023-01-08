@@ -5,25 +5,33 @@ import uasyncio as asyncio
 def board_is_w():
     """ is board Pico W? """
     import sys
-    board = sys.implementation._machine
-    return "Pico W" in board
+    return "Pico W" in sys.implementation._machine
 
-async def heartbeat(on_ms = 10, off_ms = 1_990):
+async def heartbeat(on_ms: int = 10, off_ms: int = 4_990):
     """ blink onboard LED """
     led = 'LED' if board_is_w() else 25
     onboard = Pin(led, Pin.OUT, value=0)
     while True:
+        print('beat')
         onboard.on()
         await asyncio.sleep_ms(on_ms)
         onboard.off()
         await asyncio.sleep_ms(off_ms)
 
+async def print_int(n: int, pause: int):
+    """ print an integer at set intervals """
+    for i in range(n):
+        print(i)
+        await asyncio.sleep_ms(pause)
+
 async def main():
-    """ test hearbeat() """
-    asyncio.create_task(heartbeat())
-    while True:
-        print('_')
-        await asyncio.sleep_ms(2_000)
+    """ test concurrency """
+    asyncio.create_task(print_int(100, 1_000))
+    await heartbeat()
     
 if __name__ == '__main__':
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    finally:
+        asyncio.new_event_loop()  # clear retained state
+        print('test complete')
