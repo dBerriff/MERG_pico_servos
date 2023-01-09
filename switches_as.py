@@ -53,6 +53,20 @@ class SwitchSet:
             self._previous_states = self._pin_states
 
 
+# === test / demo code
+
+async def print_switch_status(switches_):
+    """ print switch status when changed """
+    print(f'pin: switch state {switches_.pin_states}')
+    for _ in range(10):
+        switches_.ev_main_ready.set()    # main() is ready for data
+        await switches_.ev_input.wait()  # wait for data input
+        switches_.ev_input.clear()       # data input acknowledged
+        switches_.ev_main_ready.clear()  # flag main() as busy
+        print(f'pin: switch state {switches_.pin_states}')
+        sleep_ms(2_000)                 # simulate servo setting 
+
+
 def main():
     """ test polling of switch inputs """
     # === user parameters
@@ -63,14 +77,7 @@ def main():
     
     switches = SwitchSet(switch_pins)
     asyncio.create_task(switches.poll_switches())
-    print(f'pin: switch state {switches.pin_states}')
-    for _ in range(10):
-        switches.ev_main_ready.set()    # main() is ready for data
-        await switches.ev_input.wait()  # wait for data input
-        switches.ev_input.clear()       # data input acknowledged
-        switches.ev_main_ready.clear()  # flag main() as busy
-        print(f'pin: switch state {switches.pin_states}')
-        sleep_ms(2_000)                 # simulate servo setting 
+    await print_switch_status(switches)
 
 
 if __name__ == '__main__':
