@@ -13,17 +13,15 @@ def board_is_w():
 def main():
     """ blink on-board LED on Pico or Pico W """
     # set correct pin parameter for board type
-    if board_is_w():
-        led_pin = 'LED'
-    else:
-        led_pin = 25
+    led_pin = 'LED' if board_is_w() else 25
         
     # instantiate Pin object   
     led = Pin(led_pin, Pin.OUT)
 
     # blink on-board led 10 times
-    print('onboard led should blink 10 times')
-    for i in range(20):
+    print('onboard LED should blink 10 times')
+    led.off()
+    for _ in range(20):
         led.toggle()
         sleep(0.5)  # s
     # leave led in off state

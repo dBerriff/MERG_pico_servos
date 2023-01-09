@@ -2,10 +2,12 @@
 from machine import Pin
 import uasyncio as asyncio
 
+
 def board_is_w():
     """ is board Pico W? """
     import sys
     return "Pico W" in sys.implementation._machine
+
 
 async def heartbeat(on_ms: int = 10, off_ms: int = 4_990):
     """ blink onboard LED """
@@ -18,11 +20,15 @@ async def heartbeat(on_ms: int = 10, off_ms: int = 4_990):
         onboard.off()
         await asyncio.sleep_ms(off_ms)
 
+# === test / demo code below
+
+
 async def print_int(n: int, pause: int):
     """ print an integer at set intervals """
     for i in range(n):
         print(i)
         await asyncio.sleep_ms(pause)
+
 
 async def main():
     """ test concurrency """

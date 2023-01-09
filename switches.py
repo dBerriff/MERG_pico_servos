@@ -25,10 +25,13 @@ def pin_switch(pins):
     """ return dictionary of pin: switch-objects """
     return {pin: HwSwitch(pin) for pin in pins}
 
+
 def pin_state(switches):
     """ return dictionary of pin: switch-states """
     return {pin: switches[pin].state for pin in switches}
     
+# === test / demo code below
+
 
 def main():
     """ test polling of switch inputs """
