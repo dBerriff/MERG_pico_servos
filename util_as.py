@@ -32,7 +32,7 @@ async def print_int(n: int, pause: int):
 
 async def main():
     """ test concurrency """
-    asyncio.create_task(print_int(100, 1_000))
+    asyncio.create_task(print_int(100, pause=1_000))
     await heartbeat()
     
 if __name__ == '__main__':
