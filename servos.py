@@ -33,7 +33,7 @@ class ServoSG90(PWM):
     MIN_SLEEP = 200  # ms
 
     def __init__(self, pin: int, off_deg: float, on_deg: float,
-                 transit_time: float = 1.0):
+                 rotation_time: float = 1.0):
         # initialise PWM with GPIO pin
         super().__init__(Pin(pin))
         # set pulse frequency
@@ -42,7 +42,7 @@ class ServoSG90(PWM):
         self.pin = pin  # for diagnostics
         self.off_deg = off_deg
         self.on_deg = on_deg
-        self.transit_time = transit_time  # s
+        self.rotation_time = rotation_time  # s
         
         self.off_ns = self.pw_in_range(
             self.degrees_to_ns(off_deg))
@@ -51,7 +51,7 @@ class ServoSG90(PWM):
         self.state = None  # normally OFF or ON
         self.pw = None  # ns demand pulse-width
 
-        # move servo incrementally
+        # rotate servo incrementally
         self.x_inc = 1
         self.x_steps = 100 // self.x_inc
 
@@ -107,7 +107,7 @@ class ServoSG90(PWM):
         
         self.activate_pulse()
         pw_inc = (end_pw - self.pw) // self.x_steps
-        step_pause_ms = int(self.transit_time * 1000) // self.x_steps
+        step_pause_ms = int(self.rotation_time * 1000) // self.x_steps
         x = 0
         while x < 100:
             x += self.x_inc
@@ -119,7 +119,7 @@ class ServoSG90(PWM):
         # pause for motion to complete
         sleep_ms(self.MIN_SLEEP)
         self.zero_pulse()
-        return demand_state
+        return self.state
 
 
 class ServoGroup:
@@ -153,20 +153,52 @@ class ServoGroup:
             print(f'=== pin: {servo_.pin} ===')
             print(f'off ns: {servo_.off_ns:,}')
             print(f'on  ns: {servo_.on_ns:,}')
-            print(f'transit: {servo_.transit_time}s')
+            print(f'transit: {servo_.rotation_time}s')
             print()
 
 # === test / demonstration code
 
 
+def test_servos(servo_params_, switch_servos_):
+    """ run a test sequence """
+
+    # represent changing switch input
+    test_sw_states = ({16: 0, 17: 0, 18: 0},
+                      {16: 1, 17: 1, 18: 1},
+                      {16: 1, 17: 1, 18: 1},
+                      {16: 0, 17: 0, 18: 0},
+                      {16: 0, 17: 0, 18: 0},
+                      {16: 1, 17: 1, 18: 1},
+                      {16: 0, 17: 0, 18: 0})
+    
+    # create and initialise ServoGroup object
+    servo_group = ServoGroup(servo_params_)
+    servo_group.diagnostics()
+    
+    test_interval = 1_000  # ms between test "input"
+    i = 0
+    for group_settings in test_sw_states:
+        print(f'settings: {i}')
+        print(f'test switch settings:   {group_settings}')
+        servo_settings = {}
+        for sw_pin in group_settings:
+            for servo_id in switch_servos_[sw_pin]:
+                servo_settings[servo_id] = group_settings[sw_pin]
+        print(f'updated servo settings: {servo_settings}')
+        servo_group.update(servo_settings)
+        print()
+        sleep_ms(test_interval)
+        i += 1
+        
+        
 def main():
     """ test of servo movement """
-    from time import sleep_ms
 
-    # test data
+    # === user parameters
+    
     servo_params = {0: (70, 110),
                     1: (110, 70),
-                    2: (45, 135),
+                    2: (45, 135, 2),
                     3: (45, 135)
                     }
     
@@ -175,32 +207,9 @@ def main():
                      18: (3,)
                      }
 
-    test_sw_states = ({16: 0, 17: 0, 18: 0},
-                      {16: 1, 17: 1, 18: 1},
-                      {16: 1, 17: 1, 18: 1},
-                      {16: 0, 17: 0, 18: 0},
-                      {16: 0, 17: 0, 18: 0},
-                      {16: 1, 17: 1, 18: 1},
-                      {16: 0, 17: 0, 18: 0})
+    # === end of user parameters
 
-    # create and initialise ServoGroup object
-    servo_group = ServoGroup(servo_params)
-    servo_group.diagnostics()
-    
-    test_interval = 1_000  # ms between test settings
-    i = 0
-    for group_settings in test_sw_states:
-        print(f'test: {i}')
-        print(f'test switch settings:   {group_settings}')
-        servo_settings = {}
-        for sw_pin in group_settings:
-            for servo_id in switch_servos[sw_pin]:
-                servo_settings[servo_id] = group_settings[sw_pin]
-        print(f'updated servo settings: {servo_settings}')
-        servo_group.update(servo_settings)
-        print()
-        sleep_ms(test_interval)
-        i += 1
+    test_servos(servo_params, switch_servos)
     print('test complete')
 
 
