@@ -60,31 +60,33 @@ class ServoSG90(PWM):
         return round(self.PW_MIN + degrees * self.NS_PER_DEGREE)
     
     def pw_in_range(self, pw_):
-        """ set pulse-width in allowed range
-            - call this method when setting movement limits """
+        """ return pulse-width within allowed range """
         pw_ = max(pw_, self.PW_MIN)
         pw_ = min(pw_, self.PW_MAX)
         return pw_
 
-    def move_servo(self):
+    def move_servo(self, pw_):
         """ servo machine.PWM setting method """
-        self.duty_ns(self.pw)
+        # protect servo against out-of-range demands
+        if pw_ < self.PW_MIN or pw_ > self.PW_MAX:
+            return
+        self.duty_ns(pw_)
 
     def set_off(self):
         """ set servo direct to off position """
         self.pw = self.off_ns
-        self.move_servo()
+        self.move_servo(self.pw)
         self.state = self.OFF
     
     def set_on(self):
         """ set servo direct to on position """
         self.pw = self.on_ns
-        self.move_servo()
+        self.move_servo(self.pw)
         self.state = self.ON
     
     def activate_pulse(self):
         """ turn on PWM output """
-        self.move_servo()
+        self.move_servo(self.pw)
 
     def zero_pulse(self):
         """ turn off PWM output """
@@ -110,7 +112,7 @@ class ServoSG90(PWM):
         while x < 100:
             x += self.x_inc
             self.pw += pw_inc
-            self.move_servo()
+            self.move_servo(self.pw)
             sleep_ms(step_pause_ms)
         # set final position
         set_demand()
