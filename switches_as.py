@@ -25,7 +25,7 @@ class HwSwitch(Pin):
         return self._state
     
 
-class SwitchSet:
+class SwitchGroup:
     """ poll and return switch settings """
 
     def __init__(self, switch_pins_: tuple, poll_interval: int = 200):
@@ -80,7 +80,7 @@ def main():
     
     # === end user parameters
     
-    switches = SwitchSet(switch_pins)
+    switches = SwitchGroup(switch_pins)
     asyncio.create_task(switches.poll_switches())
     await consume_switch_data(switches)
 

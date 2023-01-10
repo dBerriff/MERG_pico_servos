@@ -70,9 +70,11 @@ class ServoSG90(PWM):
         
         # servo off & on ns values are set from off_deg & on_deg
         # if degrees_offset is changed, off_ns and on_ns are updated
-        self.off_ns = None  # declare variable
-        self.on_ns = None  # declare variable
-        self._degrees_offset = 0  # default; 0 to 180 degrees scale
+        self._degrees_offset = 0  # default
+        self.off_ns = self.degrees_to_ns(
+            self.off_deg, self.degrees_offset)
+        self.on_ns = self.degrees_to_ns(
+            self.on_deg, self.degrees_offset)
         # set actual values
         self.set_servo_off_on_ns()
         
