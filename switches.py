@@ -21,12 +21,12 @@ class HwSwitch(Pin):
         return self._state
 
 
-def pin_switch(pins):
+def pin_switches(pins):
     """ return dictionary of pin: switch-objects """
     return {pin: HwSwitch(pin) for pin in pins}
 
 
-def pin_state(switches):
+def pin_states(switches):
     """ return dictionary of pin: switch-states """
     return {pin: switches[pin].state for pin in switches}
     
@@ -39,10 +39,10 @@ def main():
     from time import sleep_ms
     # test data
     switch_pins = (16, 17, 18)
-    switches = pin_switch(switch_pins)
+    switches = pin_switches(switch_pins)
     poll_interval = 1000  # ms
     for _ in range(10):
-        states = pin_state(switches)
+        states = pin_states(switches)
         print(states)
         sleep_ms(poll_interval)
         
