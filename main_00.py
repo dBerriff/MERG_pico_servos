@@ -1,5 +1,5 @@
 # main_00.py
-from servos import ServoGroup
+from servos.py import ServoGroup
 from switches import HwSwitch
 from time import sleep_ms
 
