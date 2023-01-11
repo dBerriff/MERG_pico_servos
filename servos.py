@@ -181,9 +181,9 @@ def test_servos(servo_params_, switch_servos_):
         print(f'settings: {i}')
         print(f'test switch settings:   {group_settings}')
         servo_settings = {}
-        for sw_pin in group_settings:
-            for servo_id in switch_servos_[sw_pin]:
-                servo_settings[servo_id] = group_settings[sw_pin]
+        for switch_pin in group_settings:
+            for servo_pin in switch_servos_[switch_pin]:
+                servo_settings[servo_pin] = group_settings[switch_pin]
         print(f'updated servo settings: {servo_settings}')
         servo_group.update(servo_settings)
         print()
