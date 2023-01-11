@@ -123,7 +123,7 @@ class ServoSG90(PWM):
 
 
 class ServoGroup:
-    """ create a group of servo objects for system control
+    """ create a group of servo objects for servo control
         - format of servo_parameters dictionary is:
           {pin_number: servo-parameters, pin_number: servo-parameters, ...}
         - format of self.servos is:
@@ -153,7 +153,7 @@ class ServoGroup:
             print(f'=== pin: {servo_.pin} ===')
             print(f'off ns: {servo_.off_ns:,}')
             print(f'on  ns: {servo_.on_ns:,}')
-            print(f'transit: {servo_.rotation_time}s')
+            print(f'transit time: {servo_.rotation_time}s')
             print()
 
 # === test / demonstration code

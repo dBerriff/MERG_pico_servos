@@ -1,15 +1,35 @@
 # main_00.py
-from switches import pin_switches, pin_states
 from servos import ServoGroup
+from switches import HwSwitch
 from time import sleep_ms
 
 
-def control_servos(servo_params_: dict, switch_servos_: dict):
-    """ control servos from hardware switch inputs """
+class SwitchGroup:
+    """ create a group of HwSwitch objects for switch input """
+    
+    def __init__(self, pins):
+        self.switches = {pin: HwSwitch(pin) for pin in pins}
+        
+    @property
+    def state(self):
+        """ return the group switch settings """
+        return {pin: self.switches[pin].state for pin in self.switches}
+    
+    def diagnostics(self):
+        """ print switch parameter values """
+        for switch in self.switches.values():
+            print(f'switch: {switch}')
+        print()
+        
 
-    # derive switch_pins tuple and dict of switch objects
-    switch_pins = tuple(switch_servos_.keys())
-    switches = pin_switches(switch_pins)
+def control_servos(servo_params_: dict, switch_servos_: dict):
+    """ control servos from hardware switch inputs
+        - demo code """
+
+    # instantiate SwitchGroup object
+    switch_pins = tuple(switch_servos_.keys())  # get from dict
+    switch_group = SwitchGroup(switch_pins)
+    switch_group.diagnostics()
 
     # instantiate ServoGroup object
     servo_group = ServoGroup(servo_params_)
@@ -18,7 +38,8 @@ def control_servos(servo_params_: dict, switch_servos_: dict):
     polling_interval = 1_000  # ms
     prev_states = None
     while True:
-        switch_states = pin_states(switches)
+        # read current switch states
+        switch_states = switch_group.state
         # only process change in switch states
         if switch_states != prev_states:
             print(f'=== settings')
