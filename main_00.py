@@ -25,6 +25,12 @@ class SwitchGroup:
 def control_servos(servo_params_: dict, switch_servos_: dict):
     """ control servos from hardware switch inputs
         - demo code """
+    
+    def print_status(sw_settings, srv_settings):
+        """ print switch input and servo demand settings """
+        print(f'switch states: {sw_settings}')
+        print(f'servo  demand: {srv_settings}')
+        print()
 
     # instantiate SwitchGroup object
     switch_pins = tuple(switch_servos_.keys())  # get from dict
@@ -36,25 +42,19 @@ def control_servos(servo_params_: dict, switch_servos_: dict):
     servo_group.diagnostics()
     
     polling_interval = 1_000  # ms
-    prev_states = None
     while True:
-        # read current switch states
+        # get current switch states
         switch_states = switch_group.state
-        # only process change in switch states
-        if switch_states != prev_states:
-            print(f'=== settings')
-            print(f'switch states: {switch_states}')
-            # build dict of required servo states
-            servo_settings = {}
-            for switch_pin in switch_states:
-                for servo_pin in switch_servos_[switch_pin]:
-                    servo_settings[servo_pin] = switch_states[switch_pin]
-            print(f'servo settings: {servo_settings}')
-            # set the servos to the demand positions
-            servo_group.update(servo_settings)
-            print()
+        # build dict of demand servo states
+        servo_settings = {}
+        for switch_pin in switch_states:
+            for servo_pin in switch_servos_[switch_pin]:
+                servo_settings[servo_pin] = switch_states[switch_pin]
+        # update servo positions
+        servo_group.update(servo_settings)
+        # optional for testing
+        print_status(switch_states, servo_settings)
         sleep_ms(polling_interval)
-        prev_states = switch_states
 
 
 def main():
