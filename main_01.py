@@ -60,7 +60,7 @@ def main():
     
     # start the switch polling - runs forever
     print('start switch polling')
-    await switch_group.poll_switches()  # await forever
+    await switch_group.poll_switches()  # await forever!
 
 
 if __name__ == '__main__':

@@ -58,10 +58,9 @@ class SwitchGroup:
 
 # === test / demo code
 
-from time import sleep_ms
-
 async def consume_switch_data(switches_):
     """ print switch status when changed """
+    from time import sleep_ms
     print(f'pin: switch state {switches_.switch_states}')
     for _ in range(10):
         switches_.ev_consumer_ready.set()  # flag consumer ready for data
