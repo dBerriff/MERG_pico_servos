@@ -6,7 +6,7 @@ from servos_as import ServoGroup
 # === test / demo code
 
 
-async def switch_to_servo(switch_group_: dict, servo_group_: dict,
+async def switch_to_servo(switch_group_: HwSwitchGroup, servo_group_: ServoGroup,
                           switch_servos_: dict):
     """ set servos from switch polling result
         - switch_group_.ev_data_ready flags new data
@@ -58,7 +58,8 @@ def main():
 
     # create the task to consume the switch data
     print('create task to consume switch data')
-    asyncio.create_task(switch_to_servo(switch_group, servo_group, switch_servos))
+    asyncio.create_task(
+        switch_to_servo(switch_group, servo_group, switch_servos))
     
     # start the switch polling - runs forever
     print('start switch polling')
