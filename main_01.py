@@ -1,18 +1,19 @@
 # main_01.py
 import uasyncio as asyncio
-from servos_as import ServoGroup
 from switches_as import HwSwitchGroup
+from servos_as import ServoGroup
 
 # === test / demo code
 
 
-async def consume_switch_data(switch_group_, servo_group_, switch_servos_):
+async def switch_to_servo(switch_group_: dict, servo_group_: dict,
+                          switch_servos_: dict):
     """ set servos from switch polling result
         - switch_group_.ev_data_ready flags new data
         - data is not checked for changes """
     while True:
-        # wait for switch data
         switch_group_.ev_consumer_ready.set()  # flag consumer ready for data
+        # wait for switch data
         await switch_group_.ev_data_ready.wait()  # await data available
         switch_group_.ev_data_ready.clear()  # clear event ready for next setting
         switch_group_.ev_consumer_ready.clear()  # flag consumer as busy
@@ -44,6 +45,7 @@ def main():
                      }
 
     # === end of user parameters
+
     # derive switch GPIO pins
     switch_pins = tuple(switch_servos.keys())
 
@@ -56,7 +58,7 @@ def main():
 
     # create the task to consume the switch data
     print('create task to consume switch data')
-    asyncio.create_task(consume_switch_data(switch_group, servo_group, switch_servos))
+    asyncio.create_task(switch_to_servo(switch_group, servo_group, switch_servos))
     
     # start the switch polling - runs forever
     print('start switch polling')
