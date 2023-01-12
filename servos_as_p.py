@@ -56,6 +56,9 @@ class ServoSG90(PWM):
         self.x_inc = 1
         self.x_steps = 100 // self.x_inc
 
+    def __str__(self):
+        return f'{self.pin}, {self.off_deg}, {self.on_deg}, {self.rotation_time}'
+
     def degrees_to_ns(self, degrees: float):
         """ convert degrees to pulse-width ns """
         return round(self.PW_MIN + degrees * self.NS_PER_DEGREE)
@@ -142,13 +145,12 @@ class ServoGroup:
         tasks = []
         for servo in self.servos.values():
             tasks.append(servo.set_off())
-        result = await asyncio.gather(*tasks)       
+        await asyncio.gather(*tasks)
         for servo in self.servos.values():
             servo.zero_pulse()
     
     async def update(self, demand: dict):
         """ move each servo to match switch demands """
-        print(f'in update: {demand}')
         tasks = []
         for srv_id in demand:
             tasks.append(self.servos[srv_id].move_linear(demand[srv_id]))
@@ -157,17 +159,15 @@ class ServoGroup:
    
     def diagnostics(self):
         """ print servo parameter values"""
+        print('servo parameters:')
         for servo_ in self.servos.values():
-            print(f'=== pin: {servo_.pin} ===')
-            print(f'off ns: {servo_.off_ns:,}')
-            print(f'on  ns: {servo_.on_ns:,}')
-            print(f'transit time: {servo_.rotation_time}s')
-            print()
+            print(servo_)
+        print()
 
 # === test / demonstration code
 
 
-async def test_servos(servo_group_, servo_params_, switch_servos_):
+async def test_servos(servo_group_, switch_servos_):
     """ set servos to test positions """
     # represent changing switch input
     test_sw_states = ({16: 0, 17: 0, 18: 0},
@@ -195,7 +195,7 @@ async def main():
     
     servo_params = {0: (70, 110),
                     1: (110, 70),
-                    2: (45, 135, 2),
+                    2: (45, 135, 2.0),
                     3: (45, 135)
                     }
     
@@ -211,7 +211,7 @@ async def main():
     await servo_group.initialise()
     servo_group.diagnostics()
 
-    await test_servos(servo_group, servo_params, switch_servos)
+    await test_servos(servo_group, switch_servos)
     print('test complete')
 
 
