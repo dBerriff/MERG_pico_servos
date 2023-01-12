@@ -1,7 +1,7 @@
 # main_01.py
 import uasyncio as asyncio
-from servos_as_p import ServoGroup
-from switches_as_p import HwSwitchGroup
+from servos_as import ServoGroup
+from switches_as import HwSwitchGroup
 
 # === test / demo code
 
