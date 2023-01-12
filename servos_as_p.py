@@ -155,7 +155,6 @@ class ServoGroup:
         for srv_id in demand:
             tasks.append(self.servos[srv_id].move_linear(demand[srv_id]))
         result = await asyncio.gather(*tasks)
-        print(f'update result: {result}')
    
     def diagnostics(self):
         """ print servo parameter values"""

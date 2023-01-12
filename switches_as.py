@@ -1,7 +1,6 @@
 # switches_as.py
 from machine import Pin
 import uasyncio as asyncio
-from time import sleep_ms
 
 
 class HwSwitch(Pin):
@@ -58,6 +57,8 @@ class SwitchGroup:
 
 
 # === test / demo code
+
+from time import sleep_ms
 
 async def consume_switch_data(switches_):
     """ print switch status when changed """

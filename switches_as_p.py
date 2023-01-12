@@ -1,7 +1,6 @@
 # switches_as.py
 from machine import Pin
 import uasyncio as asyncio
-from time import sleep_ms
 
 
 class HwSwitch(Pin):
@@ -14,7 +13,6 @@ class HwSwitch(Pin):
     _OFF = 1
     _ON = 0
 
- 
     def __init__(self, pin: int):
         # initialise Pin parent object
         super().__init__(pin, Pin.IN, Pin.PULL_UP)
@@ -35,15 +33,14 @@ class HwSwitchGroup:
     def __init__(self, switch_pins_: tuple, poll_interval: int = 1_000):
         self.switches = {pin: HwSwitch(pin) for pin in switch_pins_}
         self.poll_interval = poll_interval
-        self.ev_input = asyncio.Event()  # set when input data received
+        self.ev_data_ready = asyncio.Event()  # set when input data received
         self.ev_consumer_ready = asyncio.Event()  # set when data consumer is ready
-        self._switch_states = None
-        self._previous_states = None
+        self._states = None
     
     @property
-    def switch_states(self):
+    def states(self):
         """ return dictionary of switch states """
-        return self._switch_states
+        return self._states
 
     async def poll_switches(self):
         """ poll switch states;
@@ -51,26 +48,28 @@ class HwSwitchGroup:
         while True:
             # poll switches at regular intervals
             await asyncio.sleep_ms(self.poll_interval)
-            self._switch_states = {
+            self._states = {
                 pin: self.switches[pin].state for pin in self.switches}
             await self.ev_consumer_ready.wait()
             # flag the consumer: data is available
-            self.ev_input.set()
+            self.ev_data_ready.set()
     
     def __str__(self):
         """ string of switch states """
-        return f'switch states: {self._switch_states}'
+        return f'switch states: {self._states}'
 
 
 # === test / demo code
 
+
 async def consume_switch_data(switches_):
-    """ print switch status when changed """
-    print(switches_)
+    """ consume polled-switch data """
+    from time import sleep_ms
+
     for _ in range(10):
         switches_.ev_consumer_ready.set()  # flag consumer ready for data
-        await switches_.ev_input.wait()  # await ev_input is set
-        switches_.ev_input.clear()  # clear event ready for next set
+        await switches_.ev_data_ready.wait()  # await ev_input is set
+        switches_.ev_data_ready.clear()  # clear event ready for next set
         switches_.ev_consumer_ready.clear()  # flag consumer as busy
         print(switches_)
         sleep_ms(2_000)  # simulate servo setting
