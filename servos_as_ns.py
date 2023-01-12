@@ -237,7 +237,7 @@ async def test_servos(servos_):
         print(result)
 
 
-def main():
+async def main():
     """ simple test of servo movement """
     
     def print_settings(servos_: dict):
